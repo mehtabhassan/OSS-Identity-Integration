@@ -1,0 +1,29 @@
+{
+  "name": "zidatel-integration",
+  "version": "0.1.0",
+  "description": "Node.js middleware service for Zidatel open source identity management",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "jest"
+  },
+  "keywords": [
+    "zidatel",
+    "identity-management",
+    "middleware",
+    "authentication",
+    "authorization"
+  ],
+  "author": "mehtabhassan1995",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.7.0",
+    "dotenv": "^16.4.0",
+    "express": "^4.19.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0",
+    "jest": "^29.7.0"
+  }
+}
