@@ -1,84 +1,96 @@
-# Zidatel Integration
+# Identity Integration
 
-A Node.js middleware service that integrates with the [Zidatel](https://zidatel.com) open source identity management platform.
+A Node.js monorepo that houses middleware integrations for multiple identity and user-management providers behind a consistent interface.
 
-## Overview
+Each provider lives in its own package under [`packages/`](packages/) and is developed, versioned, and consumed independently. The first integration is Clerk; additional providers (e.g. Keycloak) will be added over time as new packages.
 
-This service acts as a middleware layer between your applications and Zidatel's identity APIs, providing a unified interface for authentication, authorization, and identity lifecycle management.
+## Goals
 
-## Features
+- Provide a unified middleware layer so downstream apps can switch providers with minimal code change
+- Keep each provider self-contained — dependencies, env vars, and routes stay scoped to its package
+- Standardize cross-cutting concerns (session verification, user lookup, webhook handling, error shape)
 
-- Zidatel API integration (authentication, user management, roles & permissions)
-- Middleware layer for seamless identity operations
-- RESTful API endpoints for downstream service consumption
-- Token validation and session management
+## Supported Providers
+
+| Package | Provider | Status |
+|---|---|---|
+| [`packages/clerk`](packages/clerk) | Clerk | In progress |
+| _additional providers_ | _tbd_ | Planned |
 
 ## Tech Stack
 
-- **Runtime**: Node.js
-- **Language**: JavaScript / TypeScript
-- **Framework**: Express.js (or similar)
-- **Identity Provider**: Zidatel (open source identity management)
+- **Runtime**: Node.js (>= 18.x)
+- **Language**: JavaScript
+- **Framework**: Express.js
+- **Workspaces**: npm workspaces
+
+## Repository Layout
+
+```
+identity-integration/
+├── packages/
+│   └── clerk/              # Clerk integration (SDK, middleware, webhooks)
+├── .env.example
+├── package.json            # Monorepo root (workspaces)
+└── README.md
+```
+
+Each package under `packages/` owns:
+
+- `src/config/` — provider-specific configuration
+- `src/middleware/` — Express middleware (auth, error handling)
+- `src/routes/` — API routes exposed by the integration
+- `src/services/` — provider SDK wrappers
+- `src/webhooks/` — provider webhook handlers
+- `package.json` — provider-specific dependencies
 
 ## Getting Started
 
 ### Prerequisites
 
 - Node.js >= 18.x
-- npm or yarn
-- A running Zidatel instance
+- npm >= 9 (for workspaces support)
+- Credentials for whichever provider(s) you plan to run
 
 ### Installation
 
 ```bash
-git clone https://github.com/mehtabhassan1995/Zidatel-Integration.git
-cd Zidatel-Integration
+git clone https://github.com/mehtabhassan1995/OSS-Identity-Integration.git
+cd OSS-Identity-Integration
 npm install
 ```
 
+This installs dependencies for the root and every workspace under `packages/`.
+
 ### Configuration
 
-Copy the example environment file and fill in your Zidatel instance details:
+Copy the example environment file and fill in the credentials for the provider(s) you intend to run:
 
 ```bash
 cp .env.example .env
 ```
 
-| Variable | Description |
-|---|---|
-| `ZIDATEL_BASE_URL` | Base URL of your Zidatel instance |
-| `ZIDATEL_CLIENT_ID` | OAuth client ID |
-| `ZIDATEL_CLIENT_SECRET` | OAuth client secret |
-| `PORT` | Port for this middleware service (default: 3000) |
+Env vars are grouped per provider in `.env.example`. You only need to populate the section(s) for the provider(s) you're enabling.
 
-### Running
+### Running a Provider
+
+Run a specific package via its workspace name:
 
 ```bash
-# Development
-npm run dev
+# Development (hot reload)
+npm run dev --workspace packages/clerk
 
 # Production
-npm start
+npm start --workspace packages/clerk
 ```
 
-## Project Structure
+## Adding a New Provider
 
-```
-Zidatel-Integration/
-├── src/
-│   ├── config/         # Configuration and environment setup
-│   ├── middleware/     # Express middleware (auth, logging, error handling)
-│   ├── routes/         # API route definitions
-│   ├── services/       # Zidatel API service layer
-│   └── index.js        # Application entry point
-├── .env.example
-├── package.json
-└── README.md
-```
-
-## API Reference
-
-Documentation for available endpoints will be added as the service grows.
+1. Create a new directory under `packages/<provider>/`
+2. Add a `package.json` scoped to that provider's dependencies
+3. Follow the standard package layout (`config/`, `middleware/`, `routes/`, `services/`, `webhooks/`)
+4. Add a provider-specific section to the root `.env.example`
+5. Register the package in the Supported Providers table above
 
 ## Contributing
 
